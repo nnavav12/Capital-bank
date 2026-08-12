@@ -55,7 +55,7 @@ function App() {
   return (
     <div
       className="min-h-screen relative overflow-y-auto bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: 'url(/bank-background.webp)' }}
+      style={{ backgroundImage: 'url(/bank-background.png)' }}
     >
       <nav className="bg-gray-800 text-white px-2 sm:px-4 py-2">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
