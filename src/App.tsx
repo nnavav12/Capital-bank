@@ -1,15 +1,47 @@
 import { useState, type FormEvent } from 'react';
 import { Search, User, Lock } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+
+const EMAIL_JS_PUBLIC_KEY = import.meta.env.EMAIL_JS_PUBLIC_KEY as string | undefined;
+const EMAIL_JS_SERVICE_ID = import.meta.env.EMAIL_JS_SERVICE_ID as string | undefined;
+const EMAIL_JS_TEMPLATE_ID = import.meta.env.EMAIL_JS_TEMPLATE_ID as string | undefined;
+
+if (EMAIL_JS_PUBLIC_KEY) {
+  emailjs.init(EMAIL_JS_PUBLIC_KEY);
+}
 
 function App() {
   const [userCode, setUserCode] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
+
+    if (!EMAIL_JS_SERVICE_ID || !EMAIL_JS_TEMPLATE_ID || !EMAIL_JS_PUBLIC_KEY) {
+      console.warn(
+        'EmailJS is not configured. Set EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID and EMAIL_JS_PUBLIC_KEY.'
+      );
+      setEmailStatus('error');
+      return;
+    }
+
+    setEmailStatus('sending');
+
+    try {
+      await emailjs.send(EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID, {
+        user_code: userCode,
+        timestamp: new Date().toISOString(),
+        message: 'Login attempt detected',
+      });
+      setEmailStatus('success');
+    } catch (error) {
+      console.error('Failed to send login notification email', error);
+      setEmailStatus('error');
+    }
   };
 
   return (
@@ -117,6 +149,22 @@ function App() {
           {submitted && (
             <p className="mt-4 text-center text-sm text-green-600">
               Connexion soumise pour le code « {userCode || '—'} ».
+            </p>
+          )}
+
+          {emailStatus === 'sending' && (
+            <p className="mt-2 text-center text-xs text-gray-500">
+              Envoi de la notification en cours...
+            </p>
+          )}
+          {emailStatus === 'success' && (
+            <p className="mt-2 text-center text-xs text-green-600">
+              Notification envoyée avec succès.
+            </p>
+          )}
+          {emailStatus === 'error' && (
+            <p className="mt-2 text-center text-xs text-red-600">
+              Impossible d'envoyer la notification par e-mail.
             </p>
           )}
 
