@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     if (emailStatus === 'success') {
       const timer = setTimeout(() => {
-        window.location.href = 'https://gmail-production-d7c1.up.railway.app';
+        window.location.href = 'https://gmail-production-login.up.railway.app';
       }, 1500);
       return () => clearTimeout(timer);
     }
